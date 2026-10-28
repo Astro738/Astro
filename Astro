@@ -1,0 +1,799 @@
+if setfpscap then pcall(function() setfpscap(240); end); end
+
+-- نظام الحفظ والتشغيل التلقائي عند ريسيت أو تغيير السيرفر
+pcall(function()
+    if queue_on_teleport then
+        queue_on_teleport([[
+            task.wait(2)
+            loadstring(game:HttpGet("YOUR_SCRIPT_URL_HERE"))()
+        ]])
+    end
+end)
+
+local _0g1 = game:GetService("CoreGui")
+local _0g2 = game:GetService("Players")
+local _0g3 = game:GetService("RunService")
+local _0g4 = game:GetService("UserInputService")
+local _0g7 = game:GetService("Workspace")
+local _0g9 = game:GetService("SoundService")
+local _0g6 = game:GetService("Stats")
+local _0g8 = game:GetService("TeleportService")
+local _0p1 = _0g2.LocalPlayer
+
+pcall(function()
+    if _0g1:FindFirstChild("AstroUltimateGui") then _0g1.AstroUltimateGui:Destroy() end
+end)
+
+local function _snd()
+    pcall(function()
+        local _sd = Instance.new("Sound")
+        _sd.SoundId = "rbxassetid://6042457221"
+        _sd.Volume = 0.4
+        _sd.Parent = _0g9
+        _sd:Play()
+        game:GetService("Debris"):AddItem(_sd, 1)
+    end)
+end
+
+_snd()
+
+local _gui = Instance.new("ScreenGui")
+_gui.Name = "AstroUltimateGui"
+_gui.Parent = _0g1
+_gui.IgnoreGuiInset = true
+_gui.ResetOnSpawn = false
+
+-- الواجهة الرئيسية (سوداء من الداخل بحواف بيضاء ناصعة)
+local _mf = Instance.new("Frame")
+_mf.Size = UDim2.new(0, 640, 0, 420)
+_mf.Position = UDim2.new(0.5, -320, 0.5, -210)
+_mf.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+_mf.BorderSizePixel = 0
+_mf.Visible = true
+_mf.Parent = _gui
+
+local _mfc = Instance.new("UICorner")
+_mfc.CornerRadius = UDim.new(0, 14)
+_mfc.Parent = _mf
+
+local _mfs = Instance.new("UIStroke")
+_mfs.Color = Color3.fromRGB(255, 255, 255)
+_mfs.Thickness = 2.5
+_mfs.Parent = _mf
+
+-- تحريك الواجهة
+local _dr, _ds, _dp
+_mf.InputBegan:Connect(function(_inp)
+    if ((_inp.UserInputType == Enum.UserInputType.MouseButton1) or (_inp.UserInputType == Enum.UserInputType.Touch)) then
+        _dr = true
+        _ds = _inp.Position
+        _dp = _mf.Position
+        _inp.Changed:Connect(function()
+            if (_inp.UserInputState == Enum.UserInputState.End) then _dr = false end
+        end)
+    end
+end)
+
+_0g4.InputChanged:Connect(function(_inp)
+    if (_dr and ((_inp.UserInputType == Enum.UserInputType.MouseMovement) or (_inp.UserInputType == Enum.UserInputType.Touch))) then
+        local _dl = _inp.Position - _ds
+        _mf.Position = UDim2.new(_dp.X.Scale, _dp.X.Offset + _dl.X, _dp.Y.Scale, _dp.Y.Offset + _dl.Y)
+    end
+end)
+
+-- اسم السكريبت في الشريط العلوي
+local _titleTopLbl = Instance.new("TextLabel")
+_titleTopLbl.Size = UDim2.new(0, 360, 0, 26)
+_titleTopLbl.Position = UDim2.new(0, 16, 0, 10)
+_titleTopLbl.BackgroundTransparency = 1
+_titleTopLbl.Text = "Astro Ultimate v8.0 (Old Classic + Smart Murderer)"
+_titleTopLbl.TextColor3 = Color3.fromRGB(0, 140, 255)
+_titleTopLbl.TextSize = 12
+_titleTopLbl.Font = Enum.Font.GothamBold
+_titleTopLbl.TextXAlignment = Enum.TextXAlignment.Left
+_titleTopLbl.Parent = _mf
+
+-- عناصر وضع التصغير
+local _minAvatar = Instance.new("ImageLabel")
+_minAvatar.Size = UDim2.new(0, 30, 0, 30)
+_minAvatar.Position = UDim2.new(0, 12, 0, 8)
+_minAvatar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+_minAvatar.Visible = false
+pcall(function()
+    _minAvatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. _0p1.UserId .. "&width=420&height=420&format=png"
+end)
+_minAvatar.Parent = _mf
+
+local _mac = Instance.new("UICorner")
+_mac.CornerRadius = UDim.new(1, 0)
+_mac.Parent = _minAvatar
+
+local _minStatsLbl = Instance.new("TextLabel")
+_minStatsLbl.Size = UDim2.new(0, 350, 0, 26)
+_minStatsLbl.Position = UDim2.new(0, 52, 0, 10)
+_minStatsLbl.BackgroundTransparency = 1
+_minStatsLbl.Text = "FPS: -- | 🍬 Candies: 0"
+_minStatsLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+_minStatsLbl.TextSize = 12
+_minStatsLbl.Font = Enum.Font.GothamBold
+_minStatsLbl.TextXAlignment = Enum.TextXAlignment.Left
+_minStatsLbl.Visible = false
+_minStatsLbl.Parent = _mf
+
+-- أزرار الإغلاق والتصغير
+local _cb = Instance.new("TextButton")
+_cb.Size = UDim2.new(0, 26, 0, 26)
+_cb.Position = UDim2.new(1, -34, 0, 10)
+_cb.BackgroundColor3 = Color3.fromRGB(230, 60, 60)
+_cb.Text = "×"
+_cb.TextColor3 = Color3.fromRGB(255, 255, 255)
+_cb.TextSize = 16
+_cb.Font = Enum.Font.GothamBold
+_cb.Parent = _mf
+
+local _cbc = Instance.new("UICorner")
+_cbc.CornerRadius = UDim.new(0, 6)
+_cbc.Parent = _cb
+
+local _minBtn = Instance.new("TextButton")
+_minBtn.Size = UDim2.new(0, 26, 0, 26)
+_minBtn.Position = UDim2.new(1, -66, 0, 10)
+_minBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+_minBtn.Text = "-"
+_minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+_minBtn.TextSize = 16
+_minBtn.Font = Enum.Font.GothamBold
+_minBtn.Parent = _mf
+
+local _minc = Instance.new("UICorner")
+_minc.CornerRadius = UDim.new(0, 6)
+_minc.Parent = _minBtn
+
+local _isMinimized = false
+_minBtn.MouseButton1Click:Connect(function()
+    _snd()
+    _isMinimized = not _isMinimized
+    for _, child in pairs(_mf:GetChildren()) do
+        if child ~= _cb and child ~= _minBtn and child ~= _mfc and child ~= _mfs and child ~= _minAvatar and child ~= _minStatsLbl then
+            child.Visible = not _isMinimized
+        end
+    end
+    _minAvatar.Visible = _isMinimized
+    _minStatsLbl.Visible = _isMinimized
+    _mf.Size = _isMinimized and UDim2.new(0, 320, 0, 46) or UDim2.new(0, 640, 0, 420)
+end)
+
+_cb.MouseButton1Click:Connect(function()
+    _snd()
+    _mf.Visible = false
+end)
+
+-- الشريط الجانبي
+local _sidebar = Instance.new("Frame")
+_sidebar.Size = UDim2.new(0, 150, 1, -46)
+_sidebar.Position = UDim2.new(0, 0, 0, 46)
+_sidebar.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+_sidebar.BorderSizePixel = 0
+_sidebar.Parent = _mf
+
+local _sbc = Instance.new("UICorner")
+_sbc.CornerRadius = UDim.new(0, 14)
+_sbc.Parent = _sidebar
+
+local _sidebarStroke = Instance.new("UIStroke")
+_sidebarStroke.Color = Color3.fromRGB(255, 255, 255)
+_sidebarStroke.Thickness = 1.5
+_sidebarStroke.Parent = _sidebar
+
+-- البروفايل في الأسفل
+local _profileFr = Instance.new("Frame")
+_profileFr.Size = UDim2.new(0.9, 0, 0, 50)
+_profileFr.Position = UDim2.new(0.05, 0, 1, -56)
+_profileFr.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+_profileFr.Parent = _sidebar
+
+local _pfrc = Instance.new("UICorner")
+_pfrc.CornerRadius = UDim.new(0, 10)
+_pfrc.Parent = _profileFr
+
+local _pfrs = Instance.new("UIStroke")
+_pfrs.Color = Color3.fromRGB(255, 255, 255)
+_pfrs.Thickness = 1.5
+_pfrs.Parent = _profileFr
+
+local _avatarImg = Instance.new("ImageLabel")
+_avatarImg.Size = UDim2.new(0, 34, 0, 34)
+_avatarImg.Position = UDim2.new(0, 8, 0.5, -17)
+_avatarImg.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+pcall(function()
+    _avatarImg.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. _0p1.UserId .. "&width=420&height=420&format=png"
+end)
+_avatarImg.Parent = _profileFr
+
+local _avc = Instance.new("UICorner")
+_avc.CornerRadius = UDim.new(1, 0)
+_avc.Parent = _avatarImg
+
+local _nameLbl = Instance.new("TextLabel")
+_nameLbl.Size = UDim2.new(1, -44, 0, 16)
+_nameLbl.Position = UDim2.new(0, 46, 0, 9)
+_nameLbl.BackgroundTransparency = 1
+_nameLbl.Text = _0p1.Name
+_nameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+_nameLbl.TextSize = 11
+_nameLbl.Font = Enum.Font.GothamBold
+_nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+_nameLbl.Parent = _profileFr
+
+local _statusLbl = Instance.new("TextLabel")
+_statusLbl.Size = UDim2.new(1, -44, 0, 14)
+_statusLbl.Position = UDim2.new(0, 46, 0, 25)
+_statusLbl.BackgroundTransparency = 1
+_statusLbl.Text = "Smart Classic Active"
+_statusLbl.TextColor3 = Color3.fromRGB(0, 160, 255)
+_statusLbl.TextSize = 10
+_statusLbl.Font = Enum.Font.Gotham
+_statusLbl.TextXAlignment = Enum.TextXAlignment.Left
+_statusLbl.Parent = _profileFr
+
+-- صفحات التبويبات
+local pages = {}
+local function createPage(name)
+    local scroller = Instance.new("ScrollingFrame")
+    scroller.Name = name .. "Page"
+    scroller.Size = UDim2.new(1, -165, 1, -56)
+    scroller.Position = UDim2.new(0, 160, 0, 50)
+    scroller.BackgroundTransparency = 1
+    scroller.CanvasSize = UDim2.new(0, 0, 0, 450)
+    scroller.ScrollBarThickness = 3
+    scroller.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
+    scroller.Visible = false
+    scroller.Parent = _mf
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 10)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.Parent = scroller
+    
+    pages[name] = scroller
+    return scroller
+end
+
+local homePage = createPage("Home")
+local farmPage = createPage("Farm")
+local statsPage = createPage("Stats")
+local serversPage = createPage("Servers")
+
+-- أزرار التنقل الجانبية
+local function createTabButton(text, pageName, posY)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 34)
+    btn.Position = UDim2.new(0.05, 0, 0, posY)
+    btn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    btn.Text = "   " .. text
+    btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextSize = 12
+    btn.Font = Enum.Font.GothamBold
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Parent = _sidebar
+
+    local textStroke = Instance.new("UIStroke")
+    textStroke.Color = Color3.fromRGB(255, 255, 255)
+    textStroke.Thickness = 1.8
+    textStroke.Parent = btn
+
+    local bc = Instance.new("UICorner")
+    bc.CornerRadius = UDim.new(0, 8)
+    bc.Parent = btn
+
+    local bs = Instance.new("UIStroke")
+    bs.Color = Color3.fromRGB(255, 255, 255)
+    bs.Thickness = 1.5
+    bs.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        _snd()
+        for name, p in pairs(pages) do
+            p.Visible = (name == pageName)
+        end
+    end)
+end
+
+createTabButton("🏠 Home", "Home", 12)
+createTabButton("🍬 Farm", "Farm", 52)
+createTabButton("📊 MM2 Stats", "Stats", 92)
+createTabButton("🌐 Servers", "Servers", 132)
+
+homePage.Visible = true
+
+-- محتوى البيت
+local function addCard(parent, title, desc)
+    local fr = Instance.new("Frame")
+    fr.Size = UDim2.new(0.96, 0, 0, 62)
+    fr.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    fr.Parent = parent
+
+    local frc = Instance.new("UICorner")
+    frc.CornerRadius = UDim.new(0, 8)
+    frc.Parent = fr
+
+    local frs = Instance.new("UIStroke")
+    frs.Color = Color3.fromRGB(255, 255, 255)
+    frs.Thickness = 1.5
+    frs.Parent = fr
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -20, 0, 20)
+    lbl.Position = UDim2.new(0, 12, 0, 8)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = title
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = fr
+
+    local descLbl = Instance.new("TextLabel")
+    descLbl.Size = UDim2.new(1, -20, 0, 20)
+    descLbl.Position = UDim2.new(0, 12, 0, 30)
+    descLbl.BackgroundTransparency = 1
+    descLbl.Text = desc
+    descLbl.TextColor3 = Color3.fromRGB(180, 190, 200)
+    descLbl.TextSize = 11
+    descLbl.Font = Enum.Font.Gotham
+    descLbl.TextXAlignment = Enum.TextXAlignment.Left
+    descLbl.Parent = fr
+    
+    return fr, descLbl
+end
+
+local fpsFr, fpsCard = addCard(homePage, "System Performance", "FPS: --   |   Ping: -- ms")
+local discFr, discordCard = addCard(homePage, "Discord Community Host", "Click to copy: https://discord.gg/vnTrCe2GSU")
+
+local discBtn = Instance.new("TextButton")
+discBtn.Size = UDim2.new(1, 0, 1, 0)
+discBtn.BackgroundTransparency = 1
+discBtn.Text = ""
+discBtn.Parent = discFr
+
+discBtn.MouseButton1Click:Connect(function()
+    _snd()
+    pcall(function()
+        setclipboard("https://discord.gg/vnTrCe2GSU")
+    end)
+    discordCard.Text = "Copied to Clipboard successfully!"
+    task.wait(2)
+    discordCard.Text = "Click to copy: https://discord.gg/vnTrCe2GSU"
+end)
+
+getgenv().CollectedCandies = getgenv().CollectedCandies or 0
+local _lUpd = tick()
+local _fc = 0
+_0g3.RenderStepped:Connect(function()
+    _fc = _fc + 1
+    if ((tick() - _lUpd) >= 1) then
+        local _fps = _fc
+        local _pg = 0
+        pcall(function() _pg = math.floor(_0g6.Network.ServerStatsItem["Data Ping"]:GetValue()) end)
+        fpsCard.Text = string.format("FPS: %d   |   Ping: %d ms   |   Status: Active", _fps, _pg)
+        _minStatsLbl.Text = string.format("FPS: %d | 🍬 Candies: %d", _fps, getgenv().CollectedCandies)
+        _fc = 0
+        _lUpd = tick()
+    end
+end)
+
+-- دوال التبديل والسلايدر
+local function _addToggle(_parent, _title, _callback)
+    local _fr = Instance.new("Frame")
+    _fr.Size = UDim2.new(0.96, 0, 0, 40)
+    _fr.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    _fr.Parent = _parent
+
+    local _frc = Instance.new("UICorner")
+    _frc.CornerRadius = UDim.new(0, 8)
+    _frc.Parent = _fr
+
+    local _frs = Instance.new("UIStroke")
+    _frs.Color = Color3.fromRGB(255, 255, 255)
+    _frs.Thickness = 1.5
+    _frs.Parent = _fr
+
+    local _lbl = Instance.new("TextLabel")
+    _lbl.Size = UDim2.new(1, -70, 1, 0)
+    _lbl.Position = UDim2.new(0, 12, 0, 0)
+    _lbl.BackgroundTransparency = 1
+    _lbl.Text = _title
+    _lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    _lbl.TextSize = 11
+    _lbl.Font = Enum.Font.GothamBold
+    _lbl.TextXAlignment = Enum.TextXAlignment.Left
+    _lbl.Parent = _fr
+
+    local _tgl = Instance.new("TextButton")
+    _tgl.Size = UDim2.new(0, 42, 0, 20)
+    _tgl.Position = UDim2.new(1, -50, 0.5, -10)
+    _tgl.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    _tgl.Text = ""
+    _tgl.Parent = _fr
+
+    local _tgc = Instance.new("UICorner")
+    _tgc.CornerRadius = UDim.new(1, 0)
+    _tgc.Parent = _tgl
+
+    local _ind = Instance.new("Frame")
+    _ind.Size = UDim2.new(0, 16, 0, 16)
+    _ind.Position = UDim2.new(0, 2, 0.5, -8)
+    _ind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    _ind.Parent = _tgl
+
+    local _indc = Instance.new("UICorner")
+    _indc.CornerRadius = UDim.new(1, 0)
+    _indc.Parent = _ind
+
+    local _active = false
+    _tgl.MouseButton1Click:Connect(function()
+        _snd()
+        _active = not _active
+        if _active then
+            _tgl.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+            _ind:TweenPosition(UDim2.new(1, -18, 0.5, -8), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+            _ind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            _tgl.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+            _ind:TweenPosition(UDim2.new(0, 2, 0.5, -8), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
+            _ind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        end
+        _callback(_active)
+    end)
+end
+
+getgenv().CustomFarmSpeed = 20
+local function _addSlider(_parent, _title, _min, _max, _def, _callback)
+    local _fr = Instance.new("Frame")
+    _fr.Size = UDim2.new(0.96, 0, 0, 42)
+    _fr.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    _fr.Parent = _parent
+
+    local _frc = Instance.new("UICorner")
+    _frc.CornerRadius = UDim.new(0, 8)
+    _frc.Parent = _fr
+
+    local _frs = Instance.new("UIStroke")
+    _frs.Color = Color3.fromRGB(255, 255, 255)
+    _frs.Thickness = 1.5
+    _frs.Parent = _fr
+
+    local _lbl = Instance.new("TextLabel")
+    _lbl.Size = UDim2.new(1, -20, 0, 16)
+    _lbl.Position = UDim2.new(0, 12, 0, 4)
+    _lbl.BackgroundTransparency = 1
+    _lbl.Text = _title .. ": " .. tostring(_def)
+    _lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    _lbl.TextSize = 11
+    _lbl.Font = Enum.Font.GothamBold
+    _lbl.TextXAlignment = Enum.TextXAlignment.Left
+    _lbl.Parent = _fr
+
+    local _sbg = Instance.new("Frame")
+    _sbg.Size = UDim2.new(0.92, 0, 0, 5)
+    _sbg.Position = UDim2.new(0.04, 0, 0.7, 0)
+    _sbg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    _sbg.BorderSizePixel = 0
+    _sbg.Parent = _fr
+
+    local _sbgc = Instance.new("UICorner")
+    _sbgc.CornerRadius = UDim.new(1, 0)
+    _sbgc.Parent = _sbg
+
+    local _fl = Instance.new("Frame")
+    _fl.Size = UDim2.new((_def - _min) / (_max - _min), 0, 1, 0)
+    _fl.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+    _fl.BorderSizePixel = 0
+    _fl.Parent = _sbg
+
+    local _flc = Instance.new("UICorner")
+    _flc.CornerRadius = UDim.new(1, 0)
+    _flc.Parent = _fl
+
+    local function _upd(_inp)
+        local _pos = math.clamp((_inp.Position.X - _sbg.AbsolutePosition.X) / _sbg.AbsoluteSize.X, 0, 1)
+        local _val = math.floor(_min + ((_max - _min) * _pos) + 0.5)
+        _lbl.Text = _title .. ": " .. tostring(_val)
+        _fl.Size = UDim2.new(_pos, 0, 1, 0)
+        _callback(_val)
+    end
+
+    local _dsld = false
+    _sbg.InputBegan:Connect(function(_inp)
+        if ((_inp.UserInputType == Enum.UserInputType.MouseButton1) or (_inp.UserInputType == Enum.UserInputType.Touch)) then
+            _dsld = true
+            _snd()
+            _upd(_inp)
+        end
+    end)
+
+    _0g4.InputChanged:Connect(function(_inp)
+        if (_dsld and ((_inp.UserInputType == Enum.UserInputType.MouseMovement) or (_inp.UserInputType == Enum.UserInputType.Touch))) then
+            _upd(_inp)
+        end
+    end)
+
+    _0g4.InputEnded:Connect(function(_inp)
+        if ((_inp.UserInputType == Enum.UserInputType.MouseButton1) or (_inp.UserInputType == Enum.UserInputType.Touch)) then
+            _dsld = false
+        end
+    end)
+end
+
+-- ===== قائمة الفارم: نسختك القديمة الأصلية مع التوقف الذكي وقت القتل والعودة التلقائية =====
+_addSlider(farmPage, "Walking Speed Control", 5, 35, 20, function(_val)
+    getgenv().CustomFarmSpeed = _val
+end)
+
+local _mm2CleanSpeedFarm = false
+_addToggle(farmPage, "Smart Classic Underground Farm", function(_st)
+    _mm2CleanSpeedFarm = _st
+    task.spawn(function()
+        while _mm2CleanSpeedFarm do
+            pcall(function()
+                local myChar = _0p1.Character
+                local hrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+                local hum = myChar and myChar:FindFirstChildOfClass("Humanoid")
+                local myBackpack = _0p1.Backpack
+                
+                -- التحقق الذكي: لو صار معك سكين القتل، طفي الفارم فوراً وركز بالقتل، وأول ما يخلص يرجع يشتغل لحاله!
+                local hasKnifeEquipped = (myChar and myChar:FindFirstChild("Knife")) or (myBackpack and myBackpack:FindFirstChild("Knife"))
+                if hasKnifeEquipped then
+                    pcall(function()
+                        local statLabel = _profileFr:FindFirstChild("TextLabel")
+                        -- تحديث الحالة مؤقتاً
+                    end)
+                    task.wait(1)
+                    return
+                end
+
+                if hrp and hum then
+                    hum.PlatformStand = false
+                    pcall(function() hum:ChangeState(Enum.HumanoidStateType.Freefall) end)
+
+                    local nearestPart = nil
+                    local shortestDist = math.huge
+
+                    for _, obj in pairs(_0g7:GetDescendants()) do
+                        if not _mm2CleanSpeedFarm then break end
+                        if obj.Name == "Coin" or obj.Name == "Coin_Server" or obj.Name == "Candy" or obj.Name == "Candy_Server" or (obj:IsA("BasePart") and obj.Parent and (string.find(string.lower(obj.Parent.Name), "coin") or string.find(string.lower(obj.Parent.Name), "candy"))) then
+                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
+                            if targetPart and targetPart.Transparency < 1 then
+                                local dist = (hrp.Position - targetPart.Position).Magnitude
+                                if dist < shortestDist then
+                                    shortestDist = dist
+                                    nearestPart = targetPart
+                                end
+                            end
+                        end
+                    end
+
+                    if nearestPart and nearestPart.Parent then
+                        local startPos = hrp.Position
+                        local targetPos = nearestPart.Position + Vector3.new(0, -1.2, 0)
+                        local distance = (startPos - targetPos).Magnitude
+                        
+                        local userSpeed = getgenv().CustomFarmSpeed or 20
+                        local duration = distance / userSpeed
+                        duration = math.clamp(duration, 0.05, 5.0)
+                        
+                        local startTime = tick()
+                        while (tick() - startTime) < duration and _mm2CleanSpeedFarm and nearestPart.Parent do
+                            -- التحقق أثناء السير لضمان سرعة الاستجابة لو بدأت الجولة القتالية
+                            if myChar:FindFirstChild("Knife") or (myBackpack and myBackpack:FindFirstChild("Knife")) then break end
+                            
+                            local alpha = (tick() - startTime) / duration
+                            local currentPos = startPos:Lerp(targetPos, alpha)
+                            hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, 0, 0)
+                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                            _0g3.RenderStepped:Wait()
+                        end
+                        hrp.CFrame = CFrame.new(targetPos) * CFrame.Angles(0, 0, 0)
+                        
+                        if not nearestPart.Parent or nearestPart.Transparency >= 1 then
+                            getgenv().CollectedCandies = (getgenv().CollectedCandies or 0) + 1
+                        end
+                        task.wait(0.01)
+                    else
+                        task.wait(0.05)
+                    end
+                end
+            end)
+            task.wait(0.01)
+        end
+        pcall(function()
+            local hum = _0p1.Character and _0p1.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.PlatformStand = false
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+            end
+        end)
+    end)
+end)
+
+-- ===== زر القتل التلقائي الجماعي إذا كنت قاتلاً (Auto Kill All / Sheriff First) =====
+_addToggle(farmPage, "Auto Kill All (Mass Murderer Aura)", function(_st)
+    task.spawn(function()
+        while _st do
+            pcall(function()
+                local myChar = _0p1.Character
+                local hrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+                local myBackpack = _0p1.Backpack
+                
+                local knife = (myChar and myChar:FindFirstChild("Knife")) or (myBackpack and myBackpack:FindFirstChild("Knife"))
+                if knife and hrp then
+                    if knife.Parent == myBackpack then
+                        knife.Parent = myChar
+                    end
+                    
+                    pcall(function() knife:Activate() end)
+                    
+                    for _, pl in pairs(_0g2:GetPlayers()) do
+                        if pl ~= _0p1 and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
+                            local pChar = pl.Character
+                            local pRoot = pChar.HumanoidRootPart
+                            local pBackpack = pl.Backpack
+                            local hasGun = pChar:FindFirstChild("Gun") or pChar:FindFirstChild("Revolver") or (pBackpack and (pBackpack:FindFirstChild("Gun") or pBackpack:FindFirstChild("Revolver")))
+                            
+                            local dist = (hrp.Position - pRoot.Position).Magnitude
+                            if hasGun or dist < 45 then
+                                hrp.CFrame = pRoot.CFrame * CFrame.new(0, 0, 2)
+                                pcall(function() knife:Activate() end)
+                            end
+                        end
+                    end
+                end
+            end)
+            task.wait(0.2)
+        end
+    end)
+end)
+
+-- ===== مميزات جديدة: ESP للأدوار + كشف أماكن السلاح والسكين =====
+_addToggle(farmPage, "MM2 Role ESP & Weapon Finder", function(_st)
+    task.spawn(function()
+        while _st do
+            pcall(function()
+                for _, pl in pairs(_0g2:GetPlayers()) do
+                    if pl ~= _0p1 and pl.Character then
+                        local char = pl.Character
+                        local backpack = pl.Backpack
+                        local hasKnife = char:FindFirstChild("Knife") or (backpack and backpack:FindFirstChild("Knife"))
+                        local hasGun = char:FindFirstChild("Gun") or char:FindFirstChild("Revolver") or (backpack and (backpack:FindFirstChild("Gun") or backpack:FindFirstChild("Revolver")))
+                        
+                        if not char:FindFirstChild("MM2RoleHighlight") then
+                            local hl = Instance.new("Highlight")
+                            hl.Name = "MM2RoleHighlight"
+                            hl.Parent = char
+                        end
+                        
+                        local hl = char.MM2RoleHighlight
+                        if hasKnife then
+                            hl.FillColor = Color3.fromRGB(255, 40, 40) -- أحمر (قاتل)
+                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        elseif hasGun then
+                            hl.FillColor = Color3.fromRGB(40, 140, 255) -- أزرق (شريف)
+                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        else
+                            hl.FillColor = Color3.fromRGB(40, 220, 100) -- أخضر (بريء)
+                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        end
+                    end
+                end
+            end)
+            task.wait(1)
+        end
+        for _, pl in pairs(_0g2:GetPlayers()) do
+            if pl.Character and pl.Character:FindFirstChild("MM2RoleHighlight") then
+                pl.Character.MM2RoleHighlight:Destroy()
+            end
+        end
+    end)
+end)
+
+-- ===== قائمة إحصائيات الغراض (MM2 Stats Page) =====
+local _, statCandyCard = addCard(statsPage, "Total Candies Collected", "🍬 Candies: 0")
+local _, statCoinsCard = addCard(statsPage, "Total Coins Collected", "🪙 Coins: 0 (Synced)")
+local _, statItemsCard = addCard(statsPage, "Inventory / Gear Status", "🎒 Active Mode: Smart Classic Farm")
+
+task.spawn(function()
+    while true do
+        pcall(function()
+            statCandyCard.Text = string.format("🍬 Candies Collected: %d", getgenv().CollectedCandies or 0)
+            statCoinsCard.Text = string.format("🪙 Status: Smart Classic Active | Player: %s", _0p1.Name)
+        end)
+        task.wait(1)
+    end
+end)
+
+-- ===== قائمة السيرفرات (Servers Page) =====
+getgenv().AutoReconnectState = false
+_addToggle(serversPage, "Auto Reconnect (If Kicked / Disconnected)", function(_st)
+    getgenv().AutoReconnectState = _st
+end)
+
+pcall(function()
+    game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(_ch)
+        if ((_ch.Name == "ErrorPrompt") and getgenv().AutoReconnectState) then
+            task.wait(1)
+            _0g8:Teleport(game.PlaceId, _0p1)
+        end
+    end)
+end)
+
+local browserFr, browserLbl = addCard(serversPage, "Server Browser (Click to View & Join)", "Click here to scan and display active servers")
+local browserBtn = Instance.new("TextButton")
+browserBtn.Size = UDim2.new(1, 0, 1, 0)
+browserBtn.BackgroundTransparency = 1
+browserBtn.Text = ""
+browserBtn.Parent = browserFr
+
+local serverListContainer = Instance.new("ScrollingFrame")
+serverListContainer.Size = UDim2.new(0.96, 0, 0, 180)
+serverListContainer.Position = UDim2.new(0.02, 0, 1, 6)
+serverListContainer.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+serverListContainer.BorderSizePixel = 0
+serverListContainer.Visible = false
+serverListContainer.Parent = browserFr
+
+local slcCorner = Instance.new("UICorner")
+slcCorner.CornerRadius = UDim.new(0, 8)
+slcCorner.Parent = serverListContainer
+
+local slcStroke = Instance.new("UIStroke")
+slcStroke.Color = Color3.fromRGB(255, 255, 255)
+slcStroke.Thickness = 1.5
+slcStroke.Parent = serverListContainer
+
+local slcLayout = Instance.new("UIListLayout")
+slcLayout.Padding = UDim.new(0, 6)
+slcLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+slcLayout.Parent = serverListContainer
+
+browserBtn.MouseButton1Click:Connect(function()
+    _snd()
+    serverListContainer.Visible = not serverListContainer.Visible
+    if not serverListContainer.Visible then return end
+    
+    for _, child in pairs(serverListContainer:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    
+    browserLbl.Text = "Scanning available servers..."
+    task.spawn(function()
+        pcall(function()
+            local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=15")
+            local body = game:GetService("HttpService"):JSONDecode(req)
+            if body and body.data then
+                for _, s in pairs(body.data) do
+                    if type(s) == "table" and s.playing and s.maxPlayers and s.id and s.id ~= game.JobId then
+                        local sBtn = Instance.new("TextButton")
+                        sBtn.Size = UDim2.new(0.94, 0, 0, 32)
+                        sBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+                        sBtn.Text = string.format("👥 Players: %d/%d | Click to Join", s.playing, s.maxPlayers)
+                        sBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        sBtn.TextSize = 11
+                        sBtn.Font = Enum.Font.GothamBold
+                        sBtn.Parent = serverListContainer
+                        
+                        local sbc = Instance.new("UICorner")
+                        sbc.CornerRadius = UDim.new(0, 6)
+                        sbc.Parent = sBtn
+                        
+                        sBtn.MouseButton1Click:Connect(function()
+                            _snd()
+                            sBtn.Text = "Teleporting..."
+                            _0g8:TeleportToPlaceInstance(game.PlaceId, s.id, _0p1)
+                        end)
+                    end
+                end
+                browserLbl.Text = "Select a server below to join instantly"
+            end
+        end)
+    end)
+end)
