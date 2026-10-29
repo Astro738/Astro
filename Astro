@@ -186,7 +186,7 @@ _sidebarStroke.Color = Color3.fromRGB(180, 20, 50)
 _sidebarStroke.Thickness = 1.5
 _sidebarStroke.Parent = _sidebar
 
--- البروفايل في الأسفل (يوزر اللاعب فوق، وتحته الإصدار 1.2)
+-- البروفايل في الأسفل
 local _profileFr = Instance.new("Frame")
 _profileFr.Size = UDim2.new(0.9, 0, 0, 50)
 _profileFr.Position = UDim2.new(0.05, 0, 1, -56)
@@ -245,7 +245,7 @@ local function createPage(name)
     scroller.Size = UDim2.new(1, -165, 1, -56)
     scroller.Position = UDim2.new(0, 160, 0, 50)
     scroller.BackgroundTransparency = 1
-    scroller.CanvasSize = UDim2.new(0, 0, 0, 560)
+    scroller.CanvasSize = UDim2.new(0, 0, 0, 850)
     scroller.ScrollBarThickness = 3
     scroller.ScrollBarImageColor3 = Color3.fromRGB(220, 30, 60)
     scroller.Visible = false
@@ -520,7 +520,7 @@ end
 
 _addSlider(farmPage, "Walk Speed Control", 5, 50, 20, function(_val) end)
 
--- 1. نظام الفارم الذكي مع حماية الهروب من القاتل (إذا اقترب لمسافة متر، يهرب فوراً)
+-- 1. نظام الفارم الذكي (يجمع الكانديز ويبقى رأسك بس طالع وثابت تحت الأرض)
 getgenv().AutoFarmCandiesActive = false
 _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
     getgenv().AutoFarmCandiesActive = _st
@@ -617,7 +617,10 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                     end
 
                     local startPos = hrp.Position
-                    local targetPos = nearestPart.Position + Vector3.new(0, 0.2, 0)
+                    local rawTargetPos = nearestPart.Position
+                    -- التموضع الصحيح تحت الكاندي مباشرة بمقدار 2.5 وحدة ليبقى الرأس طالع وثابت
+                    local targetPos = Vector3.new(rawTargetPos.X, rawTargetPos.Y - 2.5, rawTargetPos.Z)
+                    
                     local distance = (startPos - targetPos).Magnitude
                     local userSpeed = math.clamp(getgenv().CustomFarmSpeed or 20, 1, 100)
                     local duration = math.clamp(distance / userSpeed, 0.05, 5.0)
@@ -747,7 +750,7 @@ _addToggle(farmPage, "Extreme FPS Boost (Potato Graphics)", function(_st)
     end)
 end)
 
--- 4. قائمة خاصة بنظام الحفظ والتحميل التلقائي للإعدادات (Config & Auto-Save Manager)
+-- 4. قائمة خاصة بنظام الحفظ والتحميل التلقائي للإعدادات
 local configCardFr, configCardLbl = addCard(homePage, "Config Manager & Auto-Save", "Save settings, auto-execute on rejoin, and clear data")
 
 local saveCfgBtn = Instance.new("TextButton")
