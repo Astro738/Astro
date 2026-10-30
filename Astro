@@ -569,9 +569,9 @@ _addSlider(farmPage, "Candy Farm Speed (Movement)", 5, 50, 20, function(_val)
     getgenv().CustomFarmSpeed = _val
 end)
 
--- 4. الفارم الذكي (يجمع الكانديز بحرية بالبداية -> إذا خلصت ينام وينسدح تحت الأرض بشكل ثابت ومخفي -> إذا رجعت طلعت كانديز يرجع يوقف ويكمل يجمع عادي)
+-- 4. الفارم الذكي (يجمع الكانديز الحقيقية فقط بدقة -> ينام تحت الأرض إذا انتهت -> يرجع يجمع بحرية لو طلعت كانديز جديدة)
 getgenv().AutoFarmCandiesActive = false
-_addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)", function(_st)
+_addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Resume)", function(_st)
     getgenv().AutoFarmCandiesActive = _st
     task.spawn(function()
         task.wait(0.5)
@@ -625,7 +625,7 @@ _addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)"
                     return
                 end
 
-                -- رصد القاتل وإذا اقترب بـ 28 متر -> صعود قوي وتكراري للأعلى لحد 100 متر
+                -- رصد القاتل وإذا اقترب بـ 28 متر -> صعود قوي للأعلى لحد 100 متر
                 local murdererHRP = nil
                 for _, pl in pairs(_0g2:GetPlayers()) do
                     if pl ~= _0p1 and pl.Character then
@@ -666,21 +666,34 @@ _addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)"
                     end
                 end
 
-                -- البحث عن الكانديز المتاحة
+                -- البحث الدقيق عن الكانديز والكوينز الحقيقية حصرياً (مع استبعاد تام لأي لاعب أو شخصيات زي BXM)
                 local nearestPart = nil
                 local shortestDist = math.huge
 
                 for _, obj in pairs(_0g7:GetDescendants()) do
                     if not getgenv().AutoFarmCandiesActive then break end
-                    if obj.Name == "Coin" or obj.Name == "Coin_Server" or obj.Name == "Candy" or obj.Name == "Candy_Server" or (obj:IsA("BasePart") and obj.Parent and (string.find(string.lower(obj.Parent.Name), "coin") or string.find(string.lower(obj.Parent.Name), "candy"))) then
-                        local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
-                        if targetPart and targetPart.Transparency < 1 then
-                            local pos = targetPart.Position
-                            if pos.Y > 0 and pos.Y < 300 then
-                                local dist = (hrp.Position - pos).Magnitude
-                                if dist < shortestDist then
-                                    shortestDist = dist
-                                    nearestPart = targetPart
+                    
+                    -- نتأكد أن الكائن ليس لاعباً أو شخصية في السيرفر
+                    local isPlayer = false
+                    for _, pl in pairs(_0g2:GetPlayers()) do
+                        if pl.Character and (obj == pl.Character or obj:IsDescendantOf(pl.Character)) then
+                            isPlayer = true
+                            break
+                        end
+                    end
+
+                    if not isPlayer then
+                        local objName = string.lower(obj.Name)
+                        if objName == "coin" or objName == "coin_server" or objName == "candy" or objName == "candy_server" or string.find(objName, "coin") or string.find(objName, "candy") then
+                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
+                            if targetPart and targetPart.Transparency < 1 then
+                                local pos = targetPart.Position
+                                if pos.Y > 0 and pos.Y < 300 then
+                                    local dist = (hrp.Position - pos).Magnitude
+                                    if dist < shortestDist then
+                                        shortestDist = dist
+                                        nearestPart = targetPart
+                                    end
                                 end
                             end
                         end
@@ -688,7 +701,7 @@ _addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)"
                 end
 
                 if nearestPart and nearestPart.Parent then
-                    -- إذا وجدت كانديز: يلغي النوم، يستيقظ، ويتحرك لجمعها عادي
+                    -- إذا وجدت كانديز حقيقية: يستيقظ ويتحرك لجمعها فوراً
                     sleepUndergroundPos = nil
                     hum.PlatformStand = false
                     for _, part in pairs(myChar:GetDescendants()) do
@@ -719,7 +732,7 @@ _addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)"
                         getgenv().CollectedCandies = (getgenv().CollectedCandies or 0) + 1
                     end
                 else
-                    -- إذا خلصت كل الكانديز: ينزل تحت الأرض وينام (منسدح أفقي وثابت تماماً بدون أي حركة)
+                    -- إذا خلصت كل الكانديز: ينزل تحت الأرض وينام (منسدح أفقي وثابت تماماً بدون ملاحقة أي شخص)
                     for _, part in pairs(myChar:GetDescendants()) do
                         if part:IsA("BasePart") then part.CanCollide = false end
                     end
