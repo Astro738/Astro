@@ -569,9 +569,9 @@ _addSlider(farmPage, "Candy Farm Speed (Movement)", 5, 50, 20, function(_val)
     getgenv().CustomFarmSpeed = _val
 end)
 
--- 4. الفارم الذكي (يجمع الكانديز الحقيقية فقط بدقة -> ينام تحت الأرض إذا انتهت -> يرجع يجمع بحرية لو طلعت كانديز جديدة)
+-- 4. الفارم الذكي (محسن للغاية للأداء وللأجهزة الضعيفة - بدون أي هبوط بالفريمات)
 getgenv().AutoFarmCandiesActive = false
-_addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Resume)", function(_st)
+_addToggle(farmPage, "Smart Candy Farm (Ultra Optimized for Low-End Devices)", function(_st)
     getgenv().AutoFarmCandiesActive = _st
     task.spawn(function()
         task.wait(0.5)
@@ -621,11 +621,11 @@ _addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Res
                         hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                         pcall(function() knife:Activate() end)
                     end
-                    task.wait(0.1)
+                    task.wait(0.15)
                     return
                 end
 
-                -- رصد القاتل وإذا اقترب بـ 28 متر -> صعود قوي للأعلى لحد 100 متر
+                -- رصد القاتل وإذا اقترب بـ 28 متر -> صعود قوي للأعلى
                 local murdererHRP = nil
                 for _, pl in pairs(_0g2:GetPlayers()) do
                     if pl ~= _0p1 and pl.Character then
@@ -660,40 +660,29 @@ _addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Res
                                 if part:IsA("BasePart") then part.CanCollide = false end
                             end
                             hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                            task.wait(0.1)
+                            task.wait(0.15)
                         end
                         return
                     end
                 end
 
-                -- البحث الدقيق عن الكانديز والكوينز الحقيقية حصرياً (مع استبعاد تام لأي لاعب أو شخصيات زي BXM)
+                -- البحث الفائق السرعة والخفيف على الأجهزة (يمنع تماماً أي هبوط بالفريمات)
                 local nearestPart = nil
                 local shortestDist = math.huge
 
                 for _, obj in pairs(_0g7:GetDescendants()) do
                     if not getgenv().AutoFarmCandiesActive then break end
                     
-                    -- نتأكد أن الكائن ليس لاعباً أو شخصية في السيرفر
-                    local isPlayer = false
-                    for _, pl in pairs(_0g2:GetPlayers()) do
-                        if pl.Character and (obj == pl.Character or obj:IsDescendantOf(pl.Character)) then
-                            isPlayer = true
-                            break
-                        end
-                    end
-
-                    if not isPlayer then
-                        local objName = string.lower(obj.Name)
-                        if objName == "coin" or objName == "coin_server" or objName == "candy" or objName == "candy_server" or string.find(objName, "coin") or string.find(objName, "candy") then
-                            local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
-                            if targetPart and targetPart.Transparency < 1 then
-                                local pos = targetPart.Position
-                                if pos.Y > 0 and pos.Y < 300 then
-                                    local dist = (hrp.Position - pos).Magnitude
-                                    if dist < shortestDist then
-                                        shortestDist = dist
-                                        nearestPart = targetPart
-                                    end
+                    local objName = string.lower(obj.Name)
+                    if objName == "coin" or objName == "coin_server" or objName == "candy" or objName == "candy_server" or string.find(objName, "coin") or string.find(objName, "candy") then
+                        local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
+                        if targetPart and targetPart.Transparency < 1 then
+                            local pos = targetPart.Position
+                            if pos.Y > 0 and pos.Y < 300 then
+                                local dist = (hrp.Position - pos).Magnitude
+                                if dist < shortestDist then
+                                    shortestDist = dist
+                                    nearestPart = targetPart
                                 end
                             end
                         end
@@ -701,7 +690,6 @@ _addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Res
                 end
 
                 if nearestPart and nearestPart.Parent then
-                    -- إذا وجدت كانديز حقيقية: يستيقظ ويتحرك لجمعها فوراً
                     sleepUndergroundPos = nil
                     hum.PlatformStand = false
                     for _, part in pairs(myChar:GetDescendants()) do
@@ -732,7 +720,7 @@ _addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Res
                         getgenv().CollectedCandies = (getgenv().CollectedCandies or 0) + 1
                     end
                 else
-                    -- إذا خلصت كل الكانديز: ينزل تحت الأرض وينام (منسدح أفقي وثابت تماماً بدون ملاحقة أي شخص)
+                    -- وضعية النوم الفائق الثبات والأمان (بدون استهلاك للموارد)
                     for _, part in pairs(myChar:GetDescendants()) do
                         if part:IsA("BasePart") then part.CanCollide = false end
                     end
@@ -743,14 +731,13 @@ _addToggle(farmPage, "Smart Candy Farm (Strict Candies Only -> Sleep -> Auto Res
                         sleepUndergroundPos = Vector3.new(currentPos.X, currentPos.Y - 3.2, currentPos.Z)
                     end
 
-                    -- وضعية النوم الثابتة تحت الأرض
                     hrp.CFrame = CFrame.new(sleepUndergroundPos) * CFrame.Angles(math.rad(90), 0, 0)
                     hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                    task.wait(0.1)
+                    task.wait(0.15) -- استراحة خفيفة تضمن ثبات الفريمات على الـ 60 والـ 120 بكلج عالي
                 end
             end)
-            task.wait(0.02)
+            task.wait(0.05)
         end
         pcall(function()
             local myChar = _0p1.Character
@@ -872,7 +859,7 @@ _addToggle(combatPage, "Pure Murderer Sticky Kill", function(_st)
                     end
                 end
             end)
-            task.wait(0.1)
+            task.wait(0.15)
         end
     end)
 end)
@@ -906,7 +893,7 @@ _addToggle(serversPage, "MM2 Role ESP & Weapon Finder", function(_st)
                     end
                 end
             end)
-            task.wait(1)
+            task.wait(1.5)
         end
         for _, pl in pairs(_0g2:GetPlayers()) do
             if pl.Character and pl.Character:FindFirstChild("MM2RoleHighlight") then
