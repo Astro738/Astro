@@ -1,6 +1,5 @@
 if setfpscap then pcall(function() setfpscap(240); end); end
 
--- نظام الحفظ والتشغيل التلقائي عند إعادة الدخول (Rejoin / Teleport)
 pcall(function()
     if queue_on_teleport then
         queue_on_teleport([[
@@ -8,6 +7,15 @@ pcall(function()
             loadstring(game:HttpGet("YOUR_SCRIPT_URL_HERE"))()
         ]])
     end
+end)
+
+pcall(function()
+    local vu = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
 end)
 
 local _0g1 = game:GetService("CoreGui")
@@ -20,6 +28,7 @@ local _0g6 = game:GetService("Stats")
 local _0g8 = game:GetService("TeleportService")
 local _Lighting = game:GetService("Lighting")
 local _HttpService = game:GetService("HttpService")
+local _Camera = _0g7.CurrentCamera
 local _0p1 = _0g2.LocalPlayer
 
 pcall(function()
@@ -45,7 +54,6 @@ _gui.Parent = _0g1
 _gui.IgnoreGuiInset = true
 _gui.ResetOnSpawn = false
 
--- الواجهة الرئيسية بستايل الأحمر الشيطاني والأسود الملكي
 local _mf = Instance.new("Frame")
 _mf.Size = UDim2.new(0, 640, 0, 420)
 _mf.Position = UDim2.new(0.5, -320, 0.5, -210)
@@ -63,7 +71,6 @@ _mfs.Color = Color3.fromRGB(220, 20, 60)
 _mfs.Thickness = 2.5
 _mfs.Parent = _mf
 
--- تحريك الواجهة
 local _dr, _ds, _dp
 _mf.InputBegan:Connect(function(_inp)
     if ((_inp.UserInputType == Enum.UserInputType.MouseButton1) or (_inp.UserInputType == Enum.UserInputType.Touch)) then
@@ -87,7 +94,7 @@ local _titleTopLbl = Instance.new("TextLabel")
 _titleTopLbl.Size = UDim2.new(0, 440, 0, 26)
 _titleTopLbl.Position = UDim2.new(0, 16, 0, 10)
 _titleTopLbl.BackgroundTransparency = 1
-_titleTopLbl.Text = "Astor Hob MM2"
+_titleTopLbl.Text = "Astro Hob MM2 Pro Ultimate"
 _titleTopLbl.TextColor3 = Color3.fromRGB(255, 60, 80)
 _titleTopLbl.TextSize = 13
 _titleTopLbl.Font = Enum.Font.GothamBold
@@ -110,7 +117,7 @@ _mac.CornerRadius = UDim.new(1, 0)
 _mac.Parent = _minAvatar
 
 local _minStatsLbl = Instance.new("TextLabel")
-_minStatsLbl.Size = UDim2.new(0, 350, 0, 26)
+_minStatsLbl.Size = UDim2.new(0, 240, 0, 26)
 _minStatsLbl.Position = UDim2.new(0, 52, 0, 10)
 _minStatsLbl.BackgroundTransparency = 1
 _minStatsLbl.Text = "FPS: -- | 🍬 Candies: 0"
@@ -121,7 +128,6 @@ _minStatsLbl.TextXAlignment = Enum.TextXAlignment.Left
 _minStatsLbl.Visible = false
 _minStatsLbl.Parent = _mf
 
--- أزرار الإغلاق والتصغير
 local _cb = Instance.new("TextButton")
 _cb.Size = UDim2.new(0, 26, 0, 26)
 _cb.Position = UDim2.new(1, -34, 0, 10)
@@ -166,10 +172,10 @@ end)
 
 _cb.MouseButton1Click:Connect(function()
     _snd()
-    _mf.Visible = false
+    _gui:Destroy()
 end)
 
--- الشريط الجانبي
+-- الشريط الجانبي والقوائم
 local _sidebar = Instance.new("Frame")
 _sidebar.Size = UDim2.new(0, 150, 1, -46)
 _sidebar.Position = UDim2.new(0, 0, 0, 46)
@@ -186,10 +192,9 @@ _sidebarStroke.Color = Color3.fromRGB(180, 20, 50)
 _sidebarStroke.Thickness = 1.5
 _sidebarStroke.Parent = _sidebar
 
--- البروفايل في الأسفل
 local _profileFr = Instance.new("Frame")
-_profileFr.Size = UDim2.new(0.9, 0, 0, 50)
-_profileFr.Position = UDim2.new(0.05, 0, 1, -56)
+_profileFr.Size = UDim2.new(0.9, 0, 0, 54)
+_profileFr.Position = UDim2.new(0.05, 0, 1, -60)
 _profileFr.BackgroundColor3 = Color3.fromRGB(20, 8, 12)
 _profileFr.Parent = _sidebar
 
@@ -203,8 +208,8 @@ _pfrs.Thickness = 1.5
 _pfrs.Parent = _profileFr
 
 local _avatarImg = Instance.new("ImageLabel")
-_avatarImg.Size = UDim2.new(0, 34, 0, 34)
-_avatarImg.Position = UDim2.new(0, 8, 0.5, -17)
+_avatarImg.Size = UDim2.new(0, 36, 0, 36)
+_avatarImg.Position = UDim2.new(0, 8, 0.5, -18)
 _avatarImg.BackgroundColor3 = Color3.fromRGB(30, 10, 15)
 pcall(function()
     _avatarImg.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. _0p1.UserId .. "&width=420&height=420&format=png"
@@ -216,28 +221,27 @@ _avc.CornerRadius = UDim.new(1, 0)
 _avc.Parent = _avatarImg
 
 local _nameLbl = Instance.new("TextLabel")
-_nameLbl.Size = UDim2.new(1, -44, 0, 16)
-_nameLbl.Position = UDim2.new(0, 46, 0, 9)
+_nameLbl.Size = UDim2.new(1, -46, 0, 18)
+_nameLbl.Position = UDim2.new(0, 48, 0, 8)
 _nameLbl.BackgroundTransparency = 1
-_nameLbl.Text = _0p1.Name
+_nameLbl.Text = _0p1.DisplayName
 _nameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 _nameLbl.TextSize = 11
 _nameLbl.Font = Enum.Font.GothamBold
 _nameLbl.TextXAlignment = Enum.TextXAlignment.Left
 _nameLbl.Parent = _profileFr
 
-local _statusLbl = Instance.new("TextLabel")
-_statusLbl.Size = UDim2.new(1, -44, 0, 14)
-_statusLbl.Position = UDim2.new(0, 46, 0, 25)
-_statusLbl.BackgroundTransparency = 1
-_statusLbl.Text = "Version 1.2"
-_statusLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-_statusLbl.TextSize = 10
-_statusLbl.Font = Enum.Font.Gotham
-_statusLbl.TextXAlignment = Enum.TextXAlignment.Left
-_statusLbl.Parent = _profileFr
+local _userLbl = Instance.new("TextLabel")
+_userLbl.Size = UDim2.new(1, -46, 0, 16)
+_userLbl.Position = UDim2.new(0, 48, 0, 26)
+_userLbl.BackgroundTransparency = 1
+_userLbl.Text = "@" .. _0p1.Name
+_userLbl.TextColor3 = Color3.fromRGB(80, 160, 255)
+_userLbl.TextSize = 10
+_userLbl.Font = Enum.Font.GothamBold
+_userLbl.TextXAlignment = Enum.TextXAlignment.Left
+_userLbl.Parent = _profileFr
 
--- صفحات التبويبات
 local pages = {}
 local function createPage(name)
     local scroller = Instance.new("ScrollingFrame")
@@ -262,17 +266,20 @@ end
 
 local homePage = createPage("Home")
 local farmPage = createPage("Farm")
+local combatPage = createPage("Combat")
+local playerPage = createPage("Player")
 local statsPage = createPage("Stats")
 local serversPage = createPage("Servers")
+local configPage = createPage("Config")
 
 local function createTabButton(text, pageName, posY)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 34)
+    btn.Size = UDim2.new(0.9, 0, 0, 30)
     btn.Position = UDim2.new(0.05, 0, 0, posY)
     btn.BackgroundColor3 = Color3.fromRGB(20, 8, 12)
     btn.Text = "   " .. text
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 12
+    btn.TextSize = 11
     btn.Font = Enum.Font.GothamBold
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = _sidebar
@@ -295,9 +302,12 @@ local function createTabButton(text, pageName, posY)
 end
 
 createTabButton("🏠 Home", "Home", 12)
-createTabButton("🍬 Farm", "Farm", 52)
-createTabButton("📊 MM2 Stats", "Stats", 92)
-createTabButton("🌐 Servers", "Servers", 132)
+createTabButton("🍬 Farm", "Farm", 46)
+createTabButton("🎯 Combat", "Combat", 80)
+createTabButton("⚡ Player", "Player", 114)
+createTabButton("📊 Stats", "Stats", 148)
+createTabButton("🌐 Servers", "Servers", 182)
+createTabButton("⚙️ Config", "Config", 216)
 
 homePage.Visible = true
 
@@ -430,17 +440,14 @@ local function _addToggle(_parent, _title, _callback)
         if _active then
             _tgl.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
             _ind:TweenPosition(UDim2.new(1, -18, 0.5, -8), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
-            _ind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         else
             _tgl.BackgroundColor3 = Color3.fromRGB(40, 15, 20)
             _ind:TweenPosition(UDim2.new(0, 2, 0.5, -8), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
-            _ind.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         end
         _callback(_active)
     end)
 end
 
-getgenv().CustomFarmSpeed = 20
 local function _addSlider(_parent, _title, _min, _max, _def, _callback)
     local _fr = Instance.new("Frame")
     _fr.Size = UDim2.new(0.96, 0, 0, 42)
@@ -490,10 +497,10 @@ local function _addSlider(_parent, _title, _min, _max, _def, _callback)
 
     local function _upd(_inp)
         local _pos = math.clamp((_inp.Position.X - _sbg.AbsolutePosition.X) / _sbg.AbsoluteSize.X, 0, 1)
-        getgenv().CustomFarmSpeed = math.floor(_min + ((_max - _min) * _pos) + 0.5)
-        _lbl.Text = _title .. ": " .. tostring(getgenv().CustomFarmSpeed)
+        local val = math.floor(_min + ((_max - _min) * _pos) + 0.5)
+        _lbl.Text = _title .. ": " .. tostring(val)
         _fl.Size = UDim2.new(_pos, 0, 1, 0)
-        _callback(getgenv().CustomFarmSpeed)
+        _callback(val)
     end
 
     local _dsld = false
@@ -518,13 +525,58 @@ local function _addSlider(_parent, _title, _min, _max, _def, _callback)
     end)
 end
 
-_addSlider(farmPage, "Walk Speed Control", 5, 50, 20, function(_val) end)
+-- 1. قائمة اللاعب والسرعة (Player & Speed Tab)
+getgenv().CustomPlayerSpeed = 16
+_addSlider(playerPage, "Walk Speed Control (Max 32)", 16, 32, 16, function(_val)
+    getgenv().CustomPlayerSpeed = _val
+    pcall(function()
+        local hum = _0p1.Character and _0p1.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = _val end
+    end)
+end)
 
--- 1. نظام الفارم الذكي (يجمع الكانديز ويبقى رأسك بس طالع وثابت تحت الأرض)
+_0g3.RenderStepped:Connect(function()
+    pcall(function()
+        local hum = _0p1.Character and _0p1.Character:FindFirstChildOfClass("Humanoid")
+        if hum and hum.WalkSpeed ~= (getgenv().CustomPlayerSpeed or 16) then
+            hum.WalkSpeed = getgenv().CustomPlayerSpeed or 16
+        end
+    end)
+end)
+
+-- 2. اختراق الجدران (Noclip)
+getgenv().NoclipActive = false
+_addToggle(playerPage, "Wall Hack / Noclip", function(_st)
+    getgenv().NoclipActive = _st
+    task.spawn(function()
+        while getgenv().NoclipActive do
+            pcall(function()
+                local myChar = _0p1.Character
+                if myChar then
+                    for _, part in pairs(myChar:GetDescendants()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+            end)
+            _0g3.Stepped:Wait()
+        end
+    end)
+end)
+
+-- 3. سلايدر سرعة الفارم
+getgenv().CustomFarmSpeed = 20
+_addSlider(farmPage, "Candy Farm Speed (Movement)", 5, 50, 20, function(_val)
+    getgenv().CustomFarmSpeed = _val
+end)
+
+-- 4. الفارم الذكي (يجمع الكانديز بحرية بالبداية -> إذا خلصت ينام وينسدح تحت الأرض بشكل ثابت ومخفي -> إذا رجعت طلعت كانديز يرجع يوقف ويكمل يجمع عادي)
 getgenv().AutoFarmCandiesActive = false
-_addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
+_addToggle(farmPage, "Smart Candy Farm (Farm -> Sleep When Done -> Auto Resume)", function(_st)
     getgenv().AutoFarmCandiesActive = _st
     task.spawn(function()
+        task.wait(0.5)
+        local sleepUndergroundPos = nil
+
         while getgenv().AutoFarmCandiesActive do
             pcall(function()
                 local myChar = _0p1.Character
@@ -534,6 +586,7 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                 
                 if not hrp or not hum then return end
 
+                -- إذا كنت أنت القاتل ومعك سكين
                 local knife = (myChar and myChar:FindFirstChild("Knife")) or (myBackpack and myBackpack:FindFirstChild("Knife"))
                 if knife then
                     if knife.Parent == myBackpack then knife.Parent = myChar end
@@ -545,11 +598,20 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                     local minDst = math.huge
                     for _, pl in pairs(_0g2:GetPlayers()) do
                         if pl ~= _0p1 and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") and pl.Character:FindFirstChildOfClass("Humanoid") and pl.Character.Humanoid.Health > 0 then
-                            local pRoot = pl.Character.HumanoidRootPart
-                            local dst = (hrp.Position - pRoot.Position).Magnitude
-                            if dst < minDst then
-                                minDst = dst
-                                nearestTarget = pRoot
+                            local pChar = pl.Character
+                            local pHighlight = pChar:FindFirstChild("MM2RoleHighlight")
+                            local isRedTeammate = false
+                            if pHighlight and pHighlight.FillColor == Color3.fromRGB(255, 40, 40) then
+                                isRedTeammate = true
+                            end
+                            
+                            if not isRedTeammate then
+                                local pRoot = pl.Character.HumanoidRootPart
+                                local dst = (hrp.Position - pRoot.Position).Magnitude
+                                if dst < minDst then
+                                    minDst = dst
+                                    nearestTarget = pRoot
+                                end
                             end
                         end
                     end
@@ -563,6 +625,7 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                     return
                 end
 
+                -- رصد القاتل وإذا اقترب بـ 28 متر -> صعود قوي وتكراري للأعلى لحد 100 متر
                 local murdererHRP = nil
                 for _, pl in pairs(_0g2:GetPlayers()) do
                     if pl ~= _0p1 and pl.Character then
@@ -579,18 +642,31 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
 
                 if murdererHRP then
                     local distToMurderer = (hrp.Position - murdererHRP.Position).Magnitude
-                    if distToMurderer <= 8.0 then
+                    if distToMurderer <= 28.0 then
+                        sleepUndergroundPos = nil
                         for _, part in pairs(myChar:GetDescendants()) do
                             if part:IsA("BasePart") then part.CanCollide = false end
                         end
-                        local fleeDirection = (hrp.Position - murdererHRP.Position).Unit
-                        hrp.CFrame = hrp.CFrame + (fleeDirection * 15)
-                        hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                        task.wait(0.1)
+                        
+                        for i = 1, 5 do
+                            hrp.CFrame = hrp.CFrame + Vector3.new(0, 25, 0)
+                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                            task.wait(0.05)
+                        end
+                        
+                        while murdererHRP and murdererHRP.Parent and (hrp.Position - murdererHRP.Position).Magnitude < 40.0 and getgenv().AutoFarmCandiesActive do
+                            for _, part in pairs(myChar:GetDescendants()) do
+                                if part:IsA("BasePart") then part.CanCollide = false end
+                            end
+                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                            task.wait(0.1)
+                        end
                         return
                     end
                 end
 
+                -- البحث عن الكانديز المتاحة
                 local nearestPart = nil
                 local shortestDist = math.huge
 
@@ -600,7 +676,7 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                         local targetPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
                         if targetPart and targetPart.Transparency < 1 then
                             local pos = targetPart.Position
-                            if pos.Y > -10 and pos.Y < 400 then
+                            if pos.Y > 0 and pos.Y < 300 then
                                 local dist = (hrp.Position - pos).Magnitude
                                 if dist < shortestDist then
                                     shortestDist = dist
@@ -612,23 +688,23 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                 end
 
                 if nearestPart and nearestPart.Parent then
+                    -- إذا وجدت كانديز: يلغي النوم، يستيقظ، ويتحرك لجمعها عادي
+                    sleepUndergroundPos = nil
+                    hum.PlatformStand = false
                     for _, part in pairs(myChar:GetDescendants()) do
                         if part:IsA("BasePart") then part.CanCollide = false end
                     end
 
                     local startPos = hrp.Position
                     local rawTargetPos = nearestPart.Position
-                    -- التموضع الصحيح تحت الكاندي مباشرة بمقدار 2.5 وحدة ليبقى الرأس طالع وثابت
-                    local targetPos = Vector3.new(rawTargetPos.X, rawTargetPos.Y - 2.5, rawTargetPos.Z)
+                    local targetPos = Vector3.new(rawTargetPos.X, rawTargetPos.Y + 0.5, rawTargetPos.Z)
                     
                     local distance = (startPos - targetPos).Magnitude
                     local userSpeed = math.clamp(getgenv().CustomFarmSpeed or 20, 1, 100)
-                    local duration = math.clamp(distance / userSpeed, 0.05, 5.0)
+                    local duration = math.clamp(distance / userSpeed, 0.1, 4.0)
                     
                     local startTime = tick()
-                    while (tick() - startTime) < duration and getgenv().AutoFarmCandiesActive and nearestPart.Parent and not ((myChar and myChar:FindFirstChild("Knife")) or (myBackpack and myBackpack:FindFirstChild("Knife"))) do
-                        if murdererHRP and (hrp.Position - murdererHRP.Position).Magnitude <= 8.0 then break end
-                        
+                    while (tick() - startTime) < duration and getgenv().AutoFarmCandiesActive and nearestPart.Parent do
                         local alpha = (tick() - startTime) / duration
                         hrp.CFrame = CFrame.new(startPos:Lerp(targetPos, alpha))
                         hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
@@ -637,19 +713,28 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
                     end
                     
                     hrp.CFrame = CFrame.new(targetPos)
-                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                    task.wait(0.04)
                     
                     if not nearestPart.Parent or nearestPart.Transparency >= 1 then
                         getgenv().CollectedCandies = (getgenv().CollectedCandies or 0) + 1
                     end
                 else
+                    -- إذا خلصت كل الكانديز: ينزل تحت الأرض وينام (منسدح أفقي وثابت تماماً بدون أي حركة)
                     for _, part in pairs(myChar:GetDescendants()) do
-                        if part:IsA("BasePart") then part.CanCollide = true end
+                        if part:IsA("BasePart") then part.CanCollide = false end
                     end
+                    hum.PlatformStand = true
+
+                    if not sleepUndergroundPos then
+                        local currentPos = hrp.Position
+                        sleepUndergroundPos = Vector3.new(currentPos.X, currentPos.Y - 3.2, currentPos.Z)
+                    end
+
+                    -- وضعية النوم الثابتة تحت الأرض
+                    hrp.CFrame = CFrame.new(sleepUndergroundPos) * CFrame.Angles(math.rad(90), 0, 0)
                     hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                     hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                    task.wait(0.3)
+                    task.wait(0.1)
                 end
             end)
             task.wait(0.02)
@@ -665,9 +750,66 @@ _addToggle(farmPage, "Classic Candy Farm (Smart Anti-Murderer)", function(_st)
     end)
 end)
 
--- 2. زر القتل الذكي المستقل (Pure Murderer Sticky Kill)
-getgenv().PureMurdererActive = false
-_addToggle(farmPage, "Pure Murderer Sticky Kill", function(_st)
+-- 5. إيم بوت الرأس الذكي (قائمة Combat - مع استثناء زملاء التيم الحمر)
+_addToggle(combatPage, "MM2 Smart Head Aimbot", function(_st)
+    getgenv().AimbotActive = _st
+    task.spawn(function()
+        while getgenv().AimbotActive do
+            pcall(function()
+                local myChar = _0p1.Character
+                local myBackpack = _0p1.Backpack
+                if not myChar then return end
+
+                local hasGun = myChar:FindFirstChild("Gun") or myChar:FindFirstChild("Revolver") or (myBackpack and (myBackpack:FindFirstChild("Gun") or myBackpack:FindFirstChild("Revolver")))
+                local hasKnife = myChar:FindFirstChild("Knife") or (myBackpack and myBackpack:FindFirstChild("Knife"))
+
+                local targetHead = nil
+                local minDst = math.huge
+
+                for _, pl in pairs(_0g2:GetPlayers()) do
+                    if pl ~= _0p1 and pl.Character and pl.Character:FindFirstChild("Head") and pl.Character:FindFirstChildOfClass("Humanoid") and pl.Character.Humanoid.Health > 0 then
+                        local pChar = pl.Character
+                        local pBackpack = pl.Backpack
+                        local targetHasGun = pChar:FindFirstChild("Gun") or pChar:FindFirstChild("Revolver") or (pBackpack and (pBackpack:FindFirstChild("Gun") or pBackpack:FindFirstChild("Revolver")))
+                        local targetHasKnife = pChar:FindFirstChild("Knife") or (pBackpack and pBackpack:FindFirstChild("Knife"))
+
+                        local pHighlight = pChar:FindFirstChild("MM2RoleHighlight")
+                        local isRedTeammate = false
+                        if pHighlight and pHighlight.FillColor == Color3.fromRGB(255, 40, 40) then
+                            isRedTeammate = true
+                        end
+
+                        if not isRedTeammate then
+                            local shouldTarget = false
+                            if hasGun then
+                                if targetHasKnife then shouldTarget = true end
+                            else
+                                if targetHasGun then shouldTarget = true end
+                            end
+
+                            if shouldTarget then
+                                local head = pChar.Head
+                                local dst = (_Camera.CFrame.Position - head.Position).Magnitude
+                                if dst < minDst then
+                                    minDst = dst
+                                    targetHead = head
+                                end
+                            end
+                        end
+                    end
+                end
+
+                if targetHead then
+                    _Camera.CFrame = CFrame.new(_Camera.CFrame.Position, targetHead.Position)
+                end
+            end)
+            _0g3.RenderStepped:Wait()
+        end
+    end)
+end)
+
+-- 6. القتل الذكي المستقل (قائمة Combat - يتجاهل الزملاء الحمر ويركز فقط على الأخضر والأزرق)
+_addToggle(combatPage, "Pure Murderer Sticky Kill", function(_st)
     getgenv().PureMurdererActive = _st
     task.spawn(function()
         task.wait(1)
@@ -677,38 +819,41 @@ _addToggle(farmPage, "Pure Murderer Sticky Kill", function(_st)
                 local hrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
                 local myBackpack = _0p1.Backpack
                 
-                if not hrp then 
-                    task.wait(1)
-                    return 
-                end
+                if not hrp then task.wait(1) return end
 
                 local knife = (myChar and myChar:FindFirstChild("Knife")) or (myBackpack and myBackpack:FindFirstChild("Knife"))
                 
                 if knife then
                     if knife.Parent == myBackpack then knife.Parent = myChar end
-                    
                     for _, part in pairs(myChar:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
+                        if part:IsA("BasePart") then part.CanCollide = false end
                     end
                     
                     local nearestTarget = nil
                     local minDst = math.huge
                     for _, pl in pairs(_0g2:GetPlayers()) do
                         if pl ~= _0p1 and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") and pl.Character:FindFirstChildOfClass("Humanoid") and pl.Character.Humanoid.Health > 0 then
-                            local pRoot = pl.Character.HumanoidRootPart
-                            local dst = (hrp.Position - pRoot.Position).Magnitude
-                            if dst < minDst then
-                                minDst = dst
-                                nearestTarget = pRoot
+                            local pChar = pl.Character
+                            local pHighlight = pChar:FindFirstChild("MM2RoleHighlight")
+                            
+                            local isRedTeammate = false
+                            if pHighlight and pHighlight.FillColor == Color3.fromRGB(255, 40, 40) then
+                                isRedTeammate = true
+                            end
+
+                            if not isRedTeammate then
+                                local pRoot = pl.Character.HumanoidRootPart
+                                local dst = (hrp.Position - pRoot.Position).Magnitude
+                                if dst < minDst then
+                                    minDst = dst
+                                    nearestTarget = pRoot
+                                end
                             end
                         end
                     end
                     
                     if nearestTarget and nearestTarget.Parent then
-                        local stickBehindTarget = nearestTarget.CFrame * CFrame.new(0, 0, 2.0)
-                        hrp.CFrame = stickBehindTarget
+                        hrp.CFrame = nearestTarget.CFrame * CFrame.new(0, 0, 2.0)
                         hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                         pcall(function() knife:Activate() end)
                     end
@@ -719,7 +864,46 @@ _addToggle(farmPage, "Pure Murderer Sticky Kill", function(_st)
     end)
 end)
 
--- 3. قائمة تحسين الأداء والجودة (FPS Boost & Potato Graphics)
+-- 7. إسب الأدوار وتبيين الأسلحة (Role ESP)
+_addToggle(serversPage, "MM2 Role ESP & Weapon Finder", function(_st)
+    task.spawn(function()
+        while _st do
+            pcall(function()
+                for _, pl in pairs(_0g2:GetPlayers()) do
+                    if pl ~= _0p1 and pl.Character then
+                        local char = pl.Character
+                        local backpack = pl.Backpack
+                        local hasKnife = char:FindFirstChild("Knife") or (backpack and backpack:FindFirstChild("Knife"))
+                        local hasGun = char:FindFirstChild("Gun") or char:FindFirstChild("Revolver") or (backpack and (backpack:FindFirstChild("Gun") or backpack:FindFirstChild("Revolver")))
+                        
+                        if not char:FindFirstChild("MM2RoleHighlight") then
+                            local hl = Instance.new("Highlight")
+                            hl.Name = "MM2RoleHighlight"
+                            hl.Parent = char
+                        end
+                        
+                        local hl = char.MM2RoleHighlight
+                        if hasKnife then
+                            hl.FillColor = Color3.fromRGB(255, 40, 40)
+                        elseif hasGun then
+                            hl.FillColor = Color3.fromRGB(40, 140, 255)
+                        else
+                            hl.FillColor = Color3.fromRGB(40, 220, 100)
+                        end
+                    end
+                end
+            end)
+            task.wait(1)
+        end
+        for _, pl in pairs(_0g2:GetPlayers()) do
+            if pl.Character and pl.Character:FindFirstChild("MM2RoleHighlight") then
+                pl.Character.MM2RoleHighlight:Destroy()
+            end
+        end
+    end)
+end)
+
+-- 8. تحسين الأداء (FPS Boost)
 _addToggle(farmPage, "Extreme FPS Boost (Potato Graphics)", function(_st)
     pcall(function()
         if _st then
@@ -750,8 +934,8 @@ _addToggle(farmPage, "Extreme FPS Boost (Potato Graphics)", function(_st)
     end)
 end)
 
--- 4. قائمة خاصة بنظام الحفظ والتحميل التلقائي للإعدادات
-local configCardFr, configCardLbl = addCard(homePage, "Config Manager & Auto-Save", "Save settings, auto-execute on rejoin, and clear data")
+-- 9. إدارة الإعدادات والحفظ
+local configCardFr, configCardLbl = addCard(configPage, "Config & Settings Manager", "Save settings, auto-execute on rejoin, and clear data")
 
 local saveCfgBtn = Instance.new("TextButton")
 saveCfgBtn.Size = UDim2.new(0.47, 0, 0, 32)
@@ -781,13 +965,13 @@ local ccbc = Instance.new("UICorner")
 ccbc.CornerRadius = UDim.new(0, 6)
 ccbc.Parent = clearCfgBtn
 
--- زر حفظ الإعدادات في الملفات المحلية (writefile)
 saveCfgBtn.MouseButton1Click:Connect(function()
     _snd()
     pcall(function()
         if writefile then
             local configData = _HttpService:JSONEncode({
-                Speed = getgenv().CustomFarmSpeed or 20
+                FarmSpeed = getgenv().CustomFarmSpeed or 20,
+                PlayerSpeed = getgenv().CustomPlayerSpeed or 16
             })
             writefile("AstroHobMM2_Config.json", configData)
             configCardLbl.Text = "Settings saved successfully!"
@@ -797,7 +981,6 @@ saveCfgBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- زر مسح وحذف الإعدادات المحفوظة
 clearCfgBtn.MouseButton1Click:Connect(function()
     _snd()
     pcall(function()
@@ -814,19 +997,18 @@ clearCfgBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- تحميل الإعدادات تلقائياً عند تشغيل السكريبت إن وجدت
 pcall(function()
     if readfile and pcall(function() readfile("AstroHobMM2_Config.json") end) then
         local content = readfile("AstroHobMM2_Config.json")
         local data = _HttpService:JSONDecode(content)
-        if data and data.Speed then
-            getgenv().CustomFarmSpeed = data.Speed
+        if data then
+            if data.FarmSpeed then getgenv().CustomFarmSpeed = data.FarmSpeed end
+            if data.PlayerSpeed then getgenv().CustomPlayerSpeed = data.PlayerSpeed end
         end
     end
 end)
 
--- السيرفرات والتنقل التلقائي
-getgenv().AutoHopIfAlone = false
+-- 10. السيرفرات والـ Server Hop
 _addToggle(serversPage, "Auto Server Hop (If Alone)", function(_st)
     getgenv().AutoHopIfAlone = _st
     task.spawn(function()
@@ -835,18 +1017,22 @@ _addToggle(serversPage, "Auto Server Hop (If Alone)", function(_st)
                 if #_0g2:GetPlayers() <= 1 then
                     task.wait(1.5)
                     if #_0g2:GetPlayers() <= 1 then
-                        local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
-                        local body = _HttpService:JSONDecode(req)
-                        if body and body.data then
-                            local servers = {}
-                            for _, s in pairs(body.data) do
-                                if type(s) == "table" and s.playing and s.maxPlayers and s.id and s.id ~= game.JobId and s.playing < s.maxPlayers then
-                                    table.insert(servers, s.id)
+                        local success, req = pcall(function()
+                            return game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+                        end)
+                        if success and req then
+                            local body = _HttpService:JSONDecode(req)
+                            if body and body.data then
+                                local servers = {}
+                                for _, s in pairs(body.data) do
+                                    if type(s) == "table" and s.playing and s.maxPlayers and s.id and s.id ~= game.JobId and s.playing < s.maxPlayers then
+                                        table.insert(servers, s.id)
+                                    end
                                 end
-                            end
-                            if #servers > 0 then
-                                local randomServer = servers[math.random(1, #servers)]
-                                _0g8:TeleportToPlaceInstance(game.PlaceId, randomServer, _0p1)
+                                if #servers > 0 then
+                                    local randomServer = servers[math.random(1, #servers)]
+                                    _0g8:TeleportToPlaceInstance(game.PlaceId, randomServer, _0p1)
+                                end
                             end
                         end
                     end
@@ -857,48 +1043,7 @@ _addToggle(serversPage, "Auto Server Hop (If Alone)", function(_st)
     end)
 end)
 
-_addToggle(farmPage, "MM2 Role ESP & Weapon Finder", function(_st)
-    task.spawn(function()
-        while _st do
-            pcall(function()
-                for _, pl in pairs(_0g2:GetPlayers()) do
-                    if pl ~= _0p1 and pl.Character then
-                        local char = pl.Character
-                        local backpack = pl.Backpack
-                        local hasKnife = char:FindFirstChild("Knife") or (backpack and backpack:FindFirstChild("Knife"))
-                        local hasGun = char:FindFirstChild("Gun") or char:FindFirstChild("Revolver") or (backpack and (backpack:FindFirstChild("Gun") or backpack:FindFirstChild("Revolver")))
-                        
-                        if not char:FindFirstChild("MM2RoleHighlight") then
-                            local hl = Instance.new("Highlight")
-                            hl.Name = "MM2RoleHighlight"
-                            hl.Parent = char
-                        end
-                        
-                        local hl = char.MM2RoleHighlight
-                        if hasKnife then
-                            hl.FillColor = Color3.fromRGB(255, 40, 40)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        elseif hasGun then
-                            hl.FillColor = Color3.fromRGB(40, 140, 255)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        else
-                            hl.FillColor = Color3.fromRGB(40, 220, 100)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        end
-                    end
-                end
-            end)
-            task.wait(1)
-        end
-        for _, pl in pairs(_0g2:GetPlayers()) do
-            if pl.Character and pl.Character:FindFirstChild("MM2RoleHighlight") then
-                pl.Character.MM2RoleHighlight:Destroy()
-            end
-        end
-    end)
-end)
-
--- إحصائيات
+-- 11. إحصائيات الكانديز
 local _, statCandyCard = addCard(statsPage, "Total Candies Collected", "🍬 Candies: 0")
 task.spawn(function()
     while true do
@@ -909,7 +1054,6 @@ task.spawn(function()
     end
 end)
 
--- إعادة الاتصال التلقائي
 getgenv().AutoReconnectState = false
 _addToggle(serversPage, "Auto Reconnect", function(_st)
     getgenv().AutoReconnectState = _st
@@ -921,77 +1065,5 @@ pcall(function()
             task.wait(1)
             _0g8:Teleport(game.PlaceId, _0p1)
         end
-    end)
-end)
-
-local browserFr, browserLbl = addCard(serversPage, "Server Browser", "Click here to scan and display active servers")
-local browserBtn = Instance.new("TextButton")
-browserBtn.Size = UDim2.new(1, 0, 1, 0)
-browserBtn.BackgroundTransparency = 1
-browserBtn.Text = ""
-browserBtn.Parent = browserFr
-
-local serverListContainer = Instance.new("ScrollingFrame")
-serverListContainer.Size = UDim2.new(0.96, 0, 0, 180)
-serverListContainer.Position = UDim2.new(0.02, 0, 1, 6)
-serverListContainer.BackgroundColor3 = Color3.fromRGB(20, 8, 12)
-serverListContainer.BorderSizePixel = 0
-serverListContainer.Visible = false
-serverListContainer.Parent = browserFr
-
-local slcCorner = Instance.new("UICorner")
-slcCorner.CornerRadius = UDim.new(0, 8)
-slcCorner.Parent = serverListContainer
-
-local slcStroke = Instance.new("UIStroke")
-slcStroke.Color = Color3.fromRGB(180, 20, 50)
-slcStroke.Thickness = 1.5
-slcStroke.Parent = serverListContainer
-
-local slcLayout = Instance.new("UIListLayout")
-slcLayout.Padding = UDim.new(0, 6)
-slcLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-slcLayout.Parent = serverListContainer
-
-browserBtn.MouseButton1Click:Connect(function()
-    _snd()
-    serverListContainer.Visible = not serverListContainer.Visible
-    if not serverListContainer.Visible then return end
-    
-    for _, child in pairs(serverListContainer:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-    
-    browserLbl.Text = "Scanning available servers..."
-    task.spawn(function()
-        pcall(function()
-            local req = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
-            local body = _HttpService:JSONDecode(req)
-            if body and body.data then
-                for _, s in pairs(body.data) do
-                    if type(s) == "table" and s.playing and s.maxPlayers and s.id and s.id ~= game.JobId then
-                        local sBtn = Instance.new("TextButton")
-                        sBtn.Size = UDim2.new(0.94, 0, 0, 32)
-                        sBtn.BackgroundColor3 = Color3.fromRGB(30, 10, 15)
-                        sBtn.Text = string.format("👥 Players: %d/%d | Click to Join", s.playing, s.maxPlayers)
-                        sBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        sBtn.TextSize = 11
-                        sBtn.Font = Enum.Font.GothamBold
-                        sBtn.Parent = serverListContainer
-                        
-                        local sbc = Instance.new("UICorner")
-                        sbc.CornerRadius = UDim.new(0, 6)
-                        sbc.Parent = sBtn
-                        
-                        sBtn.MouseButton1Click:Connect(function()
-                            _snd()
-                            sBtn.Text = "Teleporting..."
-                            _0g8:TeleportToPlaceInstance(game.PlaceId, s.id, _0p1)
-                        end)
-                    end
-                end
-                browserLbl.Text = "Select a server below to join instantly"
-            end
-        end)
     end)
 end)
